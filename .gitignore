@@ -2,3 +2,5 @@
 .vscode
 
 venv
+
+creds.txt
