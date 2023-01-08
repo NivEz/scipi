@@ -7,12 +7,12 @@ terraform {
 }
 
 provider "twingate" {
-  api_token = "" // get from vars
-  network   = "" // get from vars
+  api_token = var.twingate_api_token
+  network   = var.twingate_network
 }
 
 resource "twingate_remote_network" "scipi_network" {
-  name = "SciPi network"
+  name = var.twingate_remote_network
 }
 
 resource "twingate_connector" "scipi_connector" {
@@ -24,8 +24,8 @@ resource "twingate_connector_tokens" "scipi_connector_tokens" {
 }
 
 resource "twingate_resource" "scipi_instance" {
-  name              = "SciPi"
-  address           = "" // get from vars
+  name              = var.twingate_resource_name
+  address           = var.ip_address
   remote_network_id = twingate_remote_network.scipi_network.id
   protocols {
     allow_icmp = true
