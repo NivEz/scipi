@@ -2,25 +2,40 @@ import inquirer
 import subprocess
 from exceptions import DockerInstallFailed
 from choices import CHOICES
+from utils import get_ip
 
 
 def cli():
     choices = [(CHOICES[choice]['display_value'], choice) for choice in CHOICES]
-    questions = [
+    installation_questions = [
         inquirer.Checkbox(name='installations',
                           message="Choose programs to install",
                           choices=choices,
                           carousel=True,
-                          ),
-        inquirer.Confirm("begin", message="Begin the installation?", default=True),
+                          )
     ]
-    answers = inquirer.prompt(questions)
+    answers = inquirer.prompt(installation_questions)
     print(answers)
-    return
-    begin = answers['begin']
-    if not begin:
+
+    if 'twingate' in answers['installations']:
+        twingate_creds = inquirer.prompt([
+            inquirer.Text("network", message="What is your Twingate network? (e.g john.twingate.com)", validate=lambda _,x: x != ""),
+            inquirer.Password("api_token", message="Insert Twingate API token", validate=lambda _,x: x != ""),
+            inquirer.Text("remote_network", message="Choose remote network name", default="SciPi network"),
+            inquirer.Text("resource_name", message="Choose resource name", default="internal"),
+        ])
+        print(twingate_creds)
+        # TODO export the answers or save to .env temporary file
+
+    ip = get_ip()
+    begin_questions = [inquirer.Confirm("begin", message=f"Begin the installation on IP {ip}?", default=True)]
+    begin_answer = inquirer.prompt(begin_questions)
+
+    if not begin_answer['begin']:
         print("Closing interactive installation...")
         return
+
+    return
 
     install_docker()
 
