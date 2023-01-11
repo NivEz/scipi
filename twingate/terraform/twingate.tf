@@ -37,3 +37,5 @@ resource "twingate_resource" "scipi_instance" {
     }
   }
 }
+
+# TODO create local_exec resource to run docker or docker-compose.yaml with shell script for env vars
