@@ -2,7 +2,7 @@ import inquirer
 import subprocess
 from exceptions import DockerInstallFailed
 from choices import CHOICES
-from utils import get_ip, build_dot_env_file
+from utils import get_ip, build_env_vars_file
 
 
 def cli():
@@ -26,7 +26,7 @@ def cli():
         ])
 
         # TODO it might be better to export the vars, consider it
-        build_dot_env_file(twingate_key_vals, key_prefix="TF_VAR_")
+        build_env_vars_file(twingate_key_vals, key_prefix="TF_VAR_", file_name=".env.tf_vars")
 
     ip = get_ip()
     begin_questions = [inquirer.Confirm("begin", message=f"Begin the installation on IP {ip}?", default=True)]
@@ -43,9 +43,6 @@ def cli():
     for package in answers['packages']:
         print("\n-----\n")
         install_package(package)
-        if 'creds' in CHOICES[package]:
-            # TODO - Ask for tokens as password inputs
-            pass
 
 
 def install_docker():
@@ -56,11 +53,12 @@ def install_docker():
 
 def install_package(package):
     directory = CHOICES[package]['directory']
+    script = CHOICES[package]['script']
     try:
-        shell = subprocess.run('./install.sh', cwd=f"../{directory}")
+        shell = subprocess.run(script, cwd=f"../{directory}")
         print(shell.returncode)
     except PermissionError:
-        shell = subprocess.run('chmod +x ./install.sh && ./install.sh', cwd=f"../{directory}", shell=True)
+        shell = subprocess.run(f'chmod +x {script} && {script}', cwd=f"../{directory}", shell=True)
     if shell.returncode != 0:
         package_short_name = CHOICES[package]['short_name']
         print(f"Could not install {package_short_name}")

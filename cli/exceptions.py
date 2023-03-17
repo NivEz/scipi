@@ -9,3 +9,7 @@ class InvalidIpAddress(Exception):
         message = f"Invalid IP address: {ip}"
         super().__init__(message)
 
+
+class IpAddressNotFound(Exception):
+    def __init__(self):
+        super().__init__("Could not find IP address")

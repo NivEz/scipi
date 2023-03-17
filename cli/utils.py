@@ -1,11 +1,13 @@
 import subprocess
 import ipaddress
-from exceptions import InvalidIpAddress
+from exceptions import InvalidIpAddress, IpAddressNotFound
 
 
 def get_ip():
-    shell = subprocess.run("hostname -I | awk '{print $1}'")
-    ip = shell.stdout
+    shell = subprocess.run("hostname -I | awk '{print $1}'", shell=True, capture_output=True, text=True)
+    if shell.returncode != 0:
+        raise IpAddressNotFound
+    ip = shell.stdout.replace("\n", "")
     validate_ip_address(ip)
     return ip
 
@@ -17,13 +19,11 @@ def validate_ip_address(ip_string):
         raise InvalidIpAddress(ip_string)
 
 
-def build_dot_env_file(key_val_pairs, key_prefix=""):
+def build_env_vars_file(key_val_pairs, key_prefix="", file_name=".env", upper=False):
     env_string = ""
     for key in key_val_pairs:
-        env_string += f"{key_prefix}{key.upper()}={key_val_pairs[key]}\n"
+        key_final = key.upper() if upper else key
+        env_string += f"{key_prefix}{key_final}={key_val_pairs[key]}\n"
 
-    # remove the last line break \n
-    env_string = env_string[:-1]
-
-    with open(".env", "w") as f:
+    with open(file_name, "w") as f:
         f.write(env_string)
