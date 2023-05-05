@@ -1,4 +1,5 @@
 import subprocess
+import os
 import ipaddress
 from exceptions import InvalidIpAddress, IpAddressNotFound
 
@@ -27,3 +28,23 @@ def build_env_vars_file(key_val_pairs, key_prefix="", file_name=".env", upper=Fa
 
     with open(file_name, "w") as f:
         f.write(env_string)
+
+
+def open_text_editor(text_editor="nano", file_path="", default_text="", cursor_line=0, delete_when_finish=True):
+    if not file_path:
+        raise ValueError("file_path argument is required")
+    if cursor_line > 0:
+        command = f"{text_editor} +{cursor_line} {file_path}"
+    else:
+        command = f"{text_editor} {file_path}"
+    if default_text:
+        with open(file_path, "w") as f:
+            f.write(default_text)
+    subprocess.run(command, shell=True)
+    with open(file_path) as f:
+        text = f.read().strip()
+
+    if delete_when_finish:
+        os.remove(file_path)
+
+    return text

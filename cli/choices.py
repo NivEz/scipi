@@ -14,7 +14,7 @@ CHOICES = {
     'twingate': {
         'display_value': 'Twingate (Zero Trust)',
         'short_name': 'Twingate',
-        'directory': 'terraform',
+        'directory': 'twingate',
         'script': './setup.sh'
     },
     'shut_down_container': {

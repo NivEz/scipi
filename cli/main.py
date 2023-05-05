@@ -2,7 +2,7 @@ import inquirer
 import subprocess
 from exceptions import DockerInstallFailed
 from choices import CHOICES
-from utils import get_ip, build_env_vars_file
+from utils import get_ip, build_env_vars_file, open_text_editor
 
 
 def cli():
@@ -19,11 +19,18 @@ def cli():
 
     if 'twingate' in answers['packages']:
         twingate_key_vals = inquirer.prompt([
-            inquirer.Text("network", message="What is your Twingate network? (e.g john for john.twingate.com)", validate=lambda _,x: x != ""),
-            inquirer.Password("api_token", message="Insert Twingate API token", validate=lambda _,x: x != ""),
+            inquirer.Text("network", message="What is your Twingate network? (e.g john for john.twingate.com)",
+                          validate=lambda _, x: x != ""),
             inquirer.Text("remote_network", message="Choose remote network name", default="SciPi network"),
             inquirer.Text("resource_name", message="Choose resource name", default="internal"),
+            inquirer.Text("api_token", message="In the next step paste your api token in the text editor", default=""),
         ])
+
+        api_token = open_text_editor(file_path="api_token.txt")
+        twingate_key_vals['api_token'] = api_token
+
+        print("------------------------")
+        print(twingate_key_vals)
 
         # TODO it might be better to export the vars, consider it
         build_env_vars_file(twingate_key_vals, key_prefix="TF_VAR_", file_name=".env.tf_vars")
@@ -36,8 +43,6 @@ def cli():
         print("Closing interactive installation...")
         return
 
-    return
-
     install_docker()
 
     for package in answers['packages']:
@@ -46,7 +51,15 @@ def cli():
 
 
 def install_docker():
-    shell = subprocess.run('./docker-install.sh', cwd="../scripts")
+    script = './docker-install.sh'
+    try:
+        shell = subprocess.run(script, cwd="../scripts", shell=True)
+        print(shell.returncode, "RETURNNNNNNN")
+        if shell.returncode == 126:
+            raise PermissionError
+    except PermissionError:
+        print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+        shell = subprocess.run(f'chmod +x {script} && {script}', cwd="../scripts", shell=True)
     if shell.returncode != 0:
         raise DockerInstallFailed
 
@@ -56,7 +69,9 @@ def install_package(package):
     script = CHOICES[package]['script']
     try:
         shell = subprocess.run(script, cwd=f"../{directory}")
-        print(shell.returncode)
+        print(shell.returncode, "RETURNNNNNNN")
+        if shell.returncode == 126:
+            raise PermissionError
     except PermissionError:
         shell = subprocess.run(f'chmod +x {script} && {script}', cwd=f"../{directory}", shell=True)
     if shell.returncode != 0:
