@@ -38,4 +38,11 @@ resource "twingate_resource" "scipi_instance" {
   }
 }
 
-# TODO create local_exec resource to run docker or docker-compose.yaml with shell script for env vars
+resource "null_resource" "tokens" {
+  provisioner "local-exec" {
+    command = <<EOT
+      "printf 'ACCESS_TOKEN=${twingate_connector_tokens.scipi_connector_tokens.access_token}\n' >> .env.tokens"
+      "printf 'REFRESH_TOKEN=${twingate_connector_tokens.scipi_connector_tokens.refresh_token}' >> .env.tokens"
+    EOT
+  }
+}
