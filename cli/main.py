@@ -1,21 +1,19 @@
 import inquirer
-import subprocess
-from exceptions import DockerInstallFailed
-from choices import CHOICES
-from utils import get_ip, build_env_vars_file, open_text_editor
+from utils import *
 
 
 def cli():
     choices = [(CHOICES[choice]['display_value'], choice) for choice in CHOICES]
+    choices.insert(0, "Docker")
     installation_questions = [
         inquirer.Checkbox(name='packages',
                           message="Choose programs to install",
                           choices=choices,
                           carousel=True,
+                          locked=["Docker"]
                           )
     ]
     answers = inquirer.prompt(installation_questions)
-    print(answers)
 
     env_variables = {}
 
@@ -34,8 +32,6 @@ def cli():
 
         env_variables = twingate_key_vals
 
-        # TODO it might be better to export the vars, consider it
-
     ip = get_ip()
     env_variables["ip_address"] = ip
     build_env_vars_file(env_variables, key_prefix="TF_VAR_", file_name=".env.tf_vars")
@@ -50,37 +46,8 @@ def cli():
     install_docker()
 
     for package in answers['packages']:
-        print("\n-----\n")
+        print("\n----------\n")
         install_package(package)
-
-
-def install_docker():
-    script = './docker-install.sh'
-    try:
-        shell = subprocess.run(script, cwd="../scripts", shell=True)
-        print(shell.returncode, "RETURNNNNNNN")
-        if shell.returncode == 126:
-            raise PermissionError
-    except PermissionError:
-        print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
-        shell = subprocess.run(f'chmod +x {script} && {script}', cwd="../scripts", shell=True)
-    if shell.returncode != 0:
-        raise DockerInstallFailed
-
-
-def install_package(package):
-    directory = CHOICES[package]['directory']
-    script = CHOICES[package]['script']
-    try:
-        shell = subprocess.run(script, cwd=f"../{directory}")
-        print(shell.returncode, "RETURNNNNNNN")
-        if shell.returncode == 126:
-            raise PermissionError
-    except PermissionError:
-        shell = subprocess.run(f'chmod +x {script} && {script}', cwd=f"../{directory}", shell=True)
-    if shell.returncode != 0:
-        package_short_name = CHOICES[package]['short_name']
-        print(f"Could not install {package_short_name}")
 
 
 if __name__ == '__main__':

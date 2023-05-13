@@ -1,7 +1,8 @@
 import subprocess
 import os
 import ipaddress
-from exceptions import InvalidIpAddress, IpAddressNotFound
+from choices import CHOICES
+from exceptions import InvalidIpAddress, IpAddressNotFound, DockerInstallFailed
 
 
 def get_ip():
@@ -29,6 +30,34 @@ def build_env_vars_file(key_val_pairs, key_prefix="", file_name=".env", upper=Fa
 
     with open(file_name, "w") as f:
         f.write(env_string)
+
+
+def install_docker():
+    script = './docker-install.sh'
+    try:
+        shell = subprocess.run(script, cwd="../scripts", shell=True)
+        if shell.returncode == 126:
+            raise PermissionError
+    except PermissionError:
+        shell = subprocess.run(f'chmod +x {script} && {script}', cwd="../scripts", shell=True)
+    if shell.returncode != 0:
+        raise DockerInstallFailed
+
+
+def install_package(package):
+    if package not in CHOICES:
+        return None
+    directory = CHOICES[package]['directory']
+    script = CHOICES[package]['script']
+    try:
+        shell = subprocess.run(script, cwd=f"../{directory}")
+        if shell.returncode == 126:
+            raise PermissionError
+    except PermissionError:
+        shell = subprocess.run(f'chmod +x {script} && {script}', cwd=f"../{directory}", shell=True)
+    if shell.returncode != 0:
+        package_short_name = CHOICES[package]['short_name']
+        print(f"Could not install {package_short_name}")
 
 
 def open_text_editor(text_editor="nano", file_path="", default_text="", cursor_line=0, delete_when_finish=True):
