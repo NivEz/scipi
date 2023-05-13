@@ -2,9 +2,14 @@
 
 # export all env variables
 set -o allexport
-source cli/.env.tf_vars
+source ../cli/.env.tf_vars
 
-docker build -t terraform:scipi .
+docker build -t terraform:scipi \
+  --build-arg TF_VAR_twingate_network="$TF_VAR_twingate_network" \
+  --build-arg TF_VAR_twingate_remote_network="$TF_VAR_twingate_remote_network" \
+  --build-arg TF_VAR_twingate_resource_name="$TF_VAR_twingate_resource_name" \
+  --build-arg TF_VAR_twingate_api_token="$TF_VAR_twingate_api_token" \
+  --build-arg TF_VAR_ip_address="$TF_VAR_ip_address" .
 
 docker run --name terraform --volume $(pwd)/terraform:/home/terraform_files terraform:scipi init
 return_code=$?
