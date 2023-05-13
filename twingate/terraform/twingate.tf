@@ -23,6 +23,10 @@ resource "twingate_connector_tokens" "scipi_connector_tokens" {
   connector_id = twingate_connector.scipi_connector.id
 }
 
+data "twingate_groups" "access_groups" {
+  name = var.twingate_access_group
+}
+
 resource "twingate_resource" "scipi_instance" {
   name              = var.twingate_resource_name
   address           = var.ip_address
@@ -36,6 +40,10 @@ resource "twingate_resource" "scipi_instance" {
     udp {
       policy = "ALLOW_ALL"
     }
+  }
+
+  access {
+    group_ids = [for ag in data.twingate_groups.access_groups.groups: ag.id]
   }
 }
 

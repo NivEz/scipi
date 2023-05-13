@@ -25,6 +25,7 @@ def cli():
                           validate=lambda _, x: x != ""),
             inquirer.Text("twingate_remote_network", message="Choose remote network name", default="SciPi network"),
             inquirer.Text("twingate_resource_name", message="Choose resource name", default="internal"),
+            inquirer.Text("twingate_access_group", message="Twingate group name to grant access to the scipi resource", default="Everyone"),
             inquirer.Text("twingate_api_token", message="In the next step paste your api token in the text editor", default=""),
         ])
 

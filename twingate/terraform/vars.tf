@@ -19,3 +19,9 @@ variable "twingate_resource_name" {
 variable "ip_address" {
   type = string
 }
+
+variable "twingate_access_group" {
+  type = string
+  default = "Everyone"
+  description = "The name of the group to grant access to the twingate scipi instance"
+}
