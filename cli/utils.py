@@ -24,7 +24,8 @@ def build_env_vars_file(key_val_pairs, key_prefix="", file_name=".env", upper=Fa
     env_string = ""
     for key in key_val_pairs:
         key_final = key.upper() if upper else key
-        env_string += f"{key_prefix}{key_final}={key_val_pairs[key]}\n"
+        val = key_val_pairs[key]
+        env_string += f"{key_prefix}{key_final}='{val}'\n"
 
     with open(file_name, "w") as f:
         f.write(env_string)

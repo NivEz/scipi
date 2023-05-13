@@ -17,25 +17,28 @@ def cli():
     answers = inquirer.prompt(installation_questions)
     print(answers)
 
+    env_variables = {}
+
     if 'twingate' in answers['packages']:
         twingate_key_vals = inquirer.prompt([
-            inquirer.Text("network", message="What is your Twingate network? (e.g john for john.twingate.com)",
+            inquirer.Text("twingate_network", message="What is your Twingate network? (e.g john for john.twingate.com)",
                           validate=lambda _, x: x != ""),
-            inquirer.Text("remote_network", message="Choose remote network name", default="SciPi network"),
-            inquirer.Text("resource_name", message="Choose resource name", default="internal"),
-            inquirer.Text("api_token", message="In the next step paste your api token in the text editor", default=""),
+            inquirer.Text("twingate_remote_network", message="Choose remote network name", default="SciPi network"),
+            inquirer.Text("twingate_resource_name", message="Choose resource name", default="internal"),
+            inquirer.Text("twingate_api_token", message="In the next step paste your api token in the text editor", default=""),
         ])
 
         api_token = open_text_editor(file_path="api_token.txt")
-        twingate_key_vals['api_token'] = api_token
+        twingate_key_vals['twingate_api_token'] = api_token
 
-        print("------------------------")
-        print(twingate_key_vals)
+        env_variables = twingate_key_vals
 
         # TODO it might be better to export the vars, consider it
-        build_env_vars_file(twingate_key_vals, key_prefix="TF_VAR_", file_name=".env.tf_vars")
 
     ip = get_ip()
+    env_variables["ip_address"] = ip
+    build_env_vars_file(env_variables, key_prefix="TF_VAR_", file_name=".env.tf_vars")
+
     begin_questions = [inquirer.Confirm("begin", message=f"Begin the installation on IP {ip}?", default=True)]
     begin_answer = inquirer.prompt(begin_questions)
 
