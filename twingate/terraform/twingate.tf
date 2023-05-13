@@ -27,6 +27,7 @@ resource "twingate_resource" "scipi_instance" {
   name              = var.twingate_resource_name
   address           = var.ip_address
   remote_network_id = twingate_remote_network.scipi_network.id
+
   protocols {
     allow_icmp = true
     tcp {
@@ -40,9 +41,10 @@ resource "twingate_resource" "scipi_instance" {
 
 resource "null_resource" "tokens" {
   provisioner "local-exec" {
-    command = <<EOT
-      "printf 'ACCESS_TOKEN=${twingate_connector_tokens.scipi_connector_tokens.access_token}\n' >> .env.tokens"
-      "printf 'REFRESH_TOKEN=${twingate_connector_tokens.scipi_connector_tokens.refresh_token}' >> .env.tokens"
-    EOT
+    command = "echo ACCESS_TOKEN=${twingate_connector_tokens.scipi_connector_tokens.access_token} >> .env.tokens"
+  }
+
+  provisioner "local-exec" {
+    command = "echo REFRESH_TOKEN=${twingate_connector_tokens.scipi_connector_tokens.refresh_token} >> .env.tokens"
   }
 }
