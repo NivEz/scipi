@@ -2,7 +2,33 @@ import inquirer
 from utils import *
 
 
+def docker_cli():
+    is_docker_installed = check_if_docker_installed()
+    if is_docker_installed:
+        return True
+    print("In the following step docker will be installed.\n"
+          "After the installation finishes logout and log \n"
+          "back into your RPI in order to continue with the \n"
+          "installation of the other packages.")
+    question = inquirer.prompt([
+        inquirer.Confirm("install_docker",
+                         message=f"Are you ready to proceed?",
+                         default=True)
+    ])
+    if not question['install_docker']:
+        print("Closing interactive installation...")
+        return False
+
+    install_docker()
+
+
 def cli():
+    is_docker_ready = docker_cli()
+    if not is_docker_ready:
+        print("\nIt appears that Docker was not installed or configured properly on your RPI.")
+        print("Maybe it is and you just forgot to logout from the shell?")
+        return
+
     choices = [(CHOICES[choice]['display_value'], choice) for choice in CHOICES]
     choices.insert(0, "Docker")
     installation_questions = [
@@ -21,10 +47,12 @@ def cli():
         twingate_key_vals = inquirer.prompt([
             inquirer.Text("twingate_network", message="What is your Twingate network? (e.g john for john.twingate.com)",
                           validate=lambda _, x: x != ""),
-            inquirer.Text("twingate_remote_network", message="Choose remote network name", default="SciPi network"),
+            inquirer.Text("twingate_remote_network", message="Choose remote network name", default="SciPi"),
             inquirer.Text("twingate_resource_name", message="Choose resource name", default="internal"),
-            inquirer.Text("twingate_access_group", message="Twingate group name to grant access to the scipi resource", default="Everyone"),
-            inquirer.Text("twingate_api_token", message="In the next step paste your api token in the text editor", default=""),
+            inquirer.Text("twingate_access_group", message="Twingate group name to grant access to the scipi resource",
+                          default="Everyone"),
+            inquirer.Text("twingate_api_token", message="In the next step paste your api token in the text editor",
+                          default=""),
         ])
 
         api_token = open_text_editor(file_path="api_token.txt")
@@ -42,8 +70,6 @@ def cli():
     if not begin_answer['begin']:
         print("Closing interactive installation...")
         return
-
-    install_docker()
 
     for package in answers['packages']:
         print("\n----------\n")

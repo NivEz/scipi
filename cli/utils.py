@@ -32,7 +32,7 @@ def build_env_vars_file(key_val_pairs, key_prefix="", file_name=".env", upper=Fa
         f.write(env_string)
 
 
-def install_docker():
+def install_docker(retry=0, max_retries=1):
     script = './docker-install.sh'
     try:
         shell = subprocess.run(script, cwd="../scripts", shell=True)
@@ -41,7 +41,16 @@ def install_docker():
     except PermissionError:
         shell = subprocess.run(f'chmod +x {script} && {script}', cwd="../scripts", shell=True)
     if shell.returncode != 0:
-        raise DockerInstallFailed
+        retry += 1
+        if retry != 0 and retry <= max_retries:
+            install_docker(retry=retry)
+        else:
+            raise DockerInstallFailed
+
+
+def check_if_docker_installed():
+    cmd = subprocess.run("docker ps", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+    return cmd.returncode == 0
 
 
 def install_package(package):
