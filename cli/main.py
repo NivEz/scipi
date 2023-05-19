@@ -1,5 +1,6 @@
 import inquirer
 from utils import *
+import tzlocal
 
 
 def docker_cli():
@@ -60,8 +61,13 @@ def cli():
 
         env_variables = twingate_key_vals
 
+    if 'pihole' in answers['packages']:
+        pihole_env = {'timezone': tzlocal.get_localzone_name()}
+        build_env_vars_file(pihole_env, file_name=".env.pihole", upper=True)
+
     ip = get_ip()
     env_variables["ip_address"] = ip
+    # adjusting the env file to Terraform
     build_env_vars_file(env_variables, key_prefix="TF_VAR_", file_name=".env.tf_vars")
 
     begin_questions = [inquirer.Confirm("begin", message=f"Begin the installation on IP {ip}?", default=True)]
@@ -72,7 +78,11 @@ def cli():
         return
 
     for package in answers['packages']:
-        print("\n----------\n")
+        if package not in CHOICES:
+            continue
+        print("\n----------")
+        print(f"Installing ${CHOICES[package]['short_name']}...")
+        print("----------\n")
         install_package(package)
 
 

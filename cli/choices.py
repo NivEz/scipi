@@ -12,7 +12,7 @@ CHOICES = {
         'script': './setup.sh'
     },
     'pihole': {
-        'display_value': 'Pi-hole (not implemented yet)',
+        'display_value': 'Pi-hole',
         'short_name': 'Pi-hole',
         'directory': 'pi-hole',
         'script': './install.sh'
