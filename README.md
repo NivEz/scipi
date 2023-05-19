@@ -22,6 +22,8 @@ This is a personal project, and it has nothing to do with SciPy.
 ✅ Portainer
 <br>
 ✅ Twingate (zero trust network)
+<br>
+✅ Pi-hole
 
 ---
 

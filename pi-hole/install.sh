@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker compose up -d
+docker compose --env-file ../cli/.env.pihole up -d
