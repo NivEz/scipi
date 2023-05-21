@@ -49,6 +49,11 @@ Set up SciPi (python venv and requirements installation):
 ./scripts/setup.sh
 ```
 
+You might need execution permissions to execute the setup script:
+```
+chmod +x ./scripts/setup.sh
+```
+
 Execute the python interactive CLI:
 ```
 ./scripts/scipi.sh
