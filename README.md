@@ -24,6 +24,8 @@ This is a personal project, and it has nothing to do with SciPy.
 ✅ Twingate (zero trust network)
 <br>
 ✅ Pi-hole
+<br>
+✅ Nginx Proxy Manager
 
 ---
 
