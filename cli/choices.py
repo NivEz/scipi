@@ -17,6 +17,12 @@ CHOICES = {
         'directory': 'pi-hole',
         'script': './install.sh'
     },
+    'nginx_proxy_manager': {
+        'display_value': 'Nginx Proxy Manager',
+        'short_name': 'Nginx Proxy Manager',
+        'directory': 'nginx-proxy-manager',
+        'script': './install.sh'
+    },
     'shut_down_container': {
         'display_value': 'Remote shut down container (not implemented yet)',
         'short_name': 'Shut down container',
